@@ -1,0 +1,5 @@
+{
+  "name": "Gitflow Release for Maven",
+  "decription": "Creates a release by creating a pull request from a release branch to master",
+  "iconName": "gitflow"
+}
