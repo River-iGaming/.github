@@ -64,8 +64,7 @@ jobs:
         
     - name: Build, tag, and push image to Amazon ECR
       env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: electra
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}        
         IMAGE_TAG: ${{ env.VERSION }}
       run: |
         docker build --build-arg JAR_FILE=$EXEC_PROJECT/target/*-exec.jar -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
