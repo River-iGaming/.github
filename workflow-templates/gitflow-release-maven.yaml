@@ -1,7 +1,7 @@
 name: Maven Deploy and Docker Package
 env:
-  ECR_REPOSITORY: electra
-  EXEC_PROJECT: electra-api
+  ECR_REPOSITORY: ecr_repo
+  EXEC_PROJECT: .
 
 on: [push]
 
