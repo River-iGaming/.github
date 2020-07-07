@@ -1,0 +1,20 @@
+FROM 511177966619.dkr.ecr.eu-west-1.amazonaws.com/platform-jdk-base:0.1.0
+
+ARG JAR_FILE=target/*-exec.jar
+ARG GIT_HASH
+ARG GIT_REPO
+ARG VERSION
+
+# Build-time metadata as defined at http://label-schema.org
+LABEL org.label-schema.build-date=$(date) \
+      org.label-schema.vcs-ref=$GIT_HASH \
+      org.label-schema.vcs-url=$GIT_REPO \
+      org.label-schema.version=$VERSION \
+      org.label-schema.schema-version="1.0"
+
+WORKDIR /app
+COPY ${JAR_FILE} application.jar
+
+EXPOSE 8080
+
+ENTRYPOINT ["java","-jar","application.jar"]
