@@ -35,13 +35,25 @@ jobs:
       with:
         path: |
           ~/.m2/repository
-          ! ~/.m2/repository/com/river
-          ! ~/.m2/repository/com/bejig
+          !~/.m2/repository/com/river
+          !~/.m2/repository/com/bejig
         key: river-cache
         restore-keys: river-cache
 
     - name: Build with Maven
-      run: mvn -B deploy -ntp
+      run: |
+        BRANCH=${GITHUB_REF#refs/heads/}        
+        case $BRANCH in
+          master)            
+            mvn -B deploy -ntp
+            ;;
+          develop)
+            mvn -B deploy -ntp
+            ;;
+          *)
+            mvn -B install -ntp
+            ;;
+        esac
 
     - name: Get release version
       run: |
