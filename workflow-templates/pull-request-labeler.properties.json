@@ -1,4 +1,5 @@
 {
   "name": "Pull Request Labeler",
-  "decription": "Enabled automatic label assignment when a PR is opened.  Remember to setup the labelling rules as described here: https://github.com/actions/labeler#create-githublabeleryml."
+  "decription": "Enabled automatic label assignment when a PR is opened.  Remember to setup the labelling rules as described here: https://github.com/actions/labeler#create-githublabeleryml.",
+  "iconName": "label_icon"
 }
