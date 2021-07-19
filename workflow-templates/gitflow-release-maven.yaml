@@ -13,14 +13,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - uses: fregante/setup-git-token@v1
-      name: Setting up GitHub credentials
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        name: Release-Bot
-        email: releases@riverigaming.com
-    - name: Set up JDK 11
-      uses: actions/setup-java@v1
+    - name: Set up JDK
+      uses: actions/setup-java@v2.1.0
       with:
         java-version: 11
     
@@ -41,19 +35,7 @@ jobs:
         restore-keys: river-cache
 
     - name: Build with Maven
-      run: |
-        BRANCH=${GITHUB_REF#refs/heads/}        
-        case $BRANCH in
-          master)            
-            mvn -B deploy -ntp
-            ;;
-          develop)
-            mvn -B deploy -ntp
-            ;;
-          *)
-            mvn -B install -ntp
-            ;;
-        esac
+      run: mvn -B deploy -Pit.test -ntp -Psonar sonar:sonar -Dsonar.login=${{ secrets.SONAR_TOKEN }}
 
     - name: Get release version
       run: |
@@ -73,7 +55,7 @@ jobs:
             ;;
         esac
         RELEASE_TAG=$( echo $VERSION | sed "s/[^[:alnum:]#._-]/-/g" )
-        echo ::set-env name=VERSION::$(echo "$RELEASE_TAG")
+        echo "VERSION=$RELEASE_TAG" >> $GITHUB_ENV
         echo Setting version to: $RELEASE_TAG
      
     - name: Configure AWS credentials
@@ -92,15 +74,17 @@ jobs:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}        
         IMAGE_TAG: ${{ env.VERSION }}
       run: |
+        REPO=$(git config --get remote.origin.url)
+        DATE=$(date --utc +%FT%TZ)
         docker build \
           --build-arg JAR_FILE=$EXEC_PROJECT/target/*-exec.jar \
           --build-arg GIT_HASH=${{ github.sha }} \
-          --build-arg GIT_REPO="$(echo git config --get remote.origin.url)" \
+          --build-arg DATE="$DATE" \
+          --build-arg GIT_REPO=$REPO \
           --build-arg GIT_REF=${{ github.ref }} \
           --build-arg VERSION=${{ env.VERSION }} \
           -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG        
-
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG  
     - name: Logout of Amazon ECR
       if: always()
       run: docker logout ${{ steps.login-ecr.outputs.registry }}
