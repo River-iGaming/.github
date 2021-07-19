@@ -1,18 +1,18 @@
-FROM 511177966619.dkr.ecr.eu-west-1.amazonaws.com/platform-jdk-base:0.1.0
+FROM 511177966619.dkr.ecr.eu-west-1.amazonaws.com/platform-jdk-base:jre8-alpine-1.1.0
 
 ARG JAR_FILE=target/*-exec.jar
 ARG GIT_HASH
 ARG GIT_REPO
 ARG VERSION
+ARG DATE
 
 # Build-time metadata as defined at http://label-schema.org
-LABEL org.label-schema.build-date=$(date) \
+LABEL org.label-schema.build-date=$DATE \
       org.label-schema.vcs-ref=$GIT_HASH \
       org.label-schema.vcs-url=$GIT_REPO \
       org.label-schema.version=$VERSION \
       org.label-schema.schema-version="1.0"
 
-WORKDIR /app
 COPY ${JAR_FILE} application.jar
 
 EXPOSE 8080
