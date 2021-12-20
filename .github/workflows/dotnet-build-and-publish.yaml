@@ -1,0 +1,68 @@
+name: .NET Build and Publish
+
+on:
+  workflow_call:
+    inputs:
+      dotnet-version:
+        description: dotnet version to use (defaults to 5.0.x)
+        required: false
+        type: string
+        default: '5.0.x'
+    secrets:
+      nuget-server-url:
+        description: Url for Nuget server
+        required: true
+      nuget-server-token:
+        description: Access token for Nuget server
+        required: true
+jobs:
+  build:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+    env: 
+      DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+      PUBLISHABLE_BRANCH: ${{ github.ref_name == 'develop' || github.ref_name == 'master' || github.ref_name == 'demo' || github.ref_name == 'hotfix/build' || github.event.inputs.publish }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.4.0
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v1.9.0
+        with:
+          dotnet-version: ${{ inputs.dotnet-version }}
+      - uses: actions/cache@v2.1.7
+        name: Setup Cache
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/package.lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+      - name: Setup environmental variables
+        run: |
+          SOLUTION=$(node -p "require('./package.json').vsBuildSolution")
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          echo "SOLUTION=$SOLUTION" >> $GITHUB_ENV
+          echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV  
+      - name: Get Version
+        id: version
+        uses: ./action/
+        with:
+          package-version: ${{ env.PACKAGE_VERSION }}
+      - name: Restore
+        run: |
+          dotnet restore $SOLUTION /p:Configuration=Release
+      - name: Build
+        run: dotnet build $SOLUTION -c Release
+      - name: Test
+        run: npm test
+      - name: Publish Nuget
+        if: env.PUBLISHABLE_BRANCH
+        env: 
+          APP_VERSION: ${{ steps.version.outputs.app-version }}          
+        run: |
+          dotnet pack $SOLUTION -p:PackageVersion=$APP_VERSION -p:AssemblyVersion=$PACKAGE_VERSION -o ./ -c release          
+          dotnet nuget push *.nupkg -k ${{ secrets.nuget-server-token }} -s ${{ secrets.nuget-server-url }}
+      - name: Git Tag
+        if: env.PUBLISHABLE_BRANCH
+        run: |
+          git tag $APP_VERSION
+          git push --tags
