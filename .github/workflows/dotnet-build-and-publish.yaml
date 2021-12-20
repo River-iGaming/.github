@@ -49,7 +49,7 @@ jobs:
           echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV  
       - name: Get Version
         id: version
-        uses: https://github.com/River-iGaming/.github/tree/master/actions/dotnet-branch-version@33f3172018a201722317748d06540d0a5990ea35
+        uses: River-iGaming/.github/actions/dotnet-branch-version@v1.0.0
         with:
           package-version: ${{ env.PACKAGE_VERSION }}
       - name: Restore
