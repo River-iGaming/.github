@@ -59,14 +59,14 @@ jobs:
       - name: Test
         run: npm test
       - name: Publish Nuget
-        if: input.publishable
+        if: inputs.publishable
         env: 
           APP_VERSION: ${{ steps.version.outputs.app-version }}          
         run: |
           dotnet pack $SOLUTION -p:PackageVersion=$APP_VERSION -p:AssemblyVersion=$PACKAGE_VERSION -o ./ -c release          
           dotnet nuget push *.nupkg -k ${{ secrets.nuget-server-token }} -s ${{ secrets.nuget-server-url }}
       - name: Git Tag
-        if: input.publishable
+        if: inputs.publishable
         run: |
           git tag $APP_VERSION
           git push --tags
