@@ -8,15 +8,15 @@ on:
         required: false
         type: string
         default: '5.0.x'
+      nuget-server-url:
+        description: Url for Nuget server
+        required: true
       publishable:
         description: Whether packages should be deployed to Nuget server
         type: boolean
         default: false
         required: false
     secrets:
-      nuget-server-url:
-        description: Url for Nuget server
-        required: true
       nuget-server-token:
         description: Access token for Nuget server
         required: true
@@ -48,7 +48,7 @@ jobs:
           echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV  
       - name: Get Version
         id: version
-        uses: River-iGaming/.github/actions/dotnet-branch-version@33f3172018a201722317748d06540d0a5990ea35
+        uses: https://github.com/River-iGaming/.github/tree/master/actions/dotnet-branch-version@33f3172018a201722317748d06540d0a5990ea35
         with:
           package-version: ${{ env.PACKAGE_VERSION }}
       - name: Restore
@@ -64,7 +64,7 @@ jobs:
           APP_VERSION: ${{ steps.version.outputs.app-version }}          
         run: |
           dotnet pack $SOLUTION -p:PackageVersion=$APP_VERSION -p:AssemblyVersion=$PACKAGE_VERSION -o ./ -c release          
-          dotnet nuget push *.nupkg -k ${{ secrets.nuget-server-token }} -s ${{ secrets.nuget-server-url }}
+          dotnet nuget push *.nupkg -k ${{ secrets.nuget-server-token }} -s ${{ inputs.nuget-server-url }}
       - name: Git Tag
         if: inputs.publishable
         run: |
