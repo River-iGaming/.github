@@ -44,7 +44,7 @@ jobs:
           echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV  
       - name: Get Version
         id: version
-        uses: ./action/
+        uses: ./actions/dotnet-branch-version
         with:
           package-version: ${{ env.PACKAGE_VERSION }}
       - name: Restore
