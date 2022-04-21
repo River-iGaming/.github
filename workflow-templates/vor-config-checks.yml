@@ -1,0 +1,11 @@
+name: Perform Config Checks
+
+on:
+  pull_request:
+    branches:
+      - "[0-9]+.x"
+
+jobs:
+  checks:
+    name: Config Checks
+    uses: River-iGaming/workflows/.github/workflows/vor-check-config.yml@vor-latest
