@@ -1,0 +1,5 @@
+{
+  "name": "Vor Config PR Checks",
+  "decription": "Lints JSON config and checks that package version does not conflict with existing git tag.",
+  "iconName": "label_icon"
+}
