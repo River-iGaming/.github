@@ -1,0 +1,11 @@
+name: Tag version
+
+on:
+  push:
+    branches:
+      - "[0-9]+.x"
+
+jobs:
+  checks:
+    name: Tag
+    uses: River-iGaming/workflows/.github/workflows/vor-tag-config.yml@vor-latest
