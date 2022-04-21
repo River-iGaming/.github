@@ -1,0 +1,5 @@
+{
+  "name": "Vor Config Tag Version",
+  "decription": "Creates and pushes a new tag as specified in package.json.",
+  "iconName": "label_icon"
+}
